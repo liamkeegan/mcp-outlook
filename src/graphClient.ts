@@ -1,7 +1,8 @@
 import { Client } from '@microsoft/microsoft-graph-client';
 import 'isomorphic-fetch';
 import { getAccessToken, isAuthenticated, acquireToken } from './auth.js';
-import { 
+import { getCloud } from './cloudConfig.js';
+import {
   CalendarEvent, 
   CreateEventParams, 
   ListEventsQuery,
@@ -34,8 +35,12 @@ export class GraphClient {
   private client: Client;
 
   constructor() {
+    const cloud = getCloud();
     this.client = Client.init({
       authProvider: msalAuthProvider,
+      baseUrl: cloud.graphBaseUrl,
+      // customHosts is only needed to allow a GRAPH_BASE_URL override outside the SDK's built-in Graph host list.
+      customHosts: new Set([cloud.graphHost]),
     });
   }
 

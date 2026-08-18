@@ -15,12 +15,17 @@ import {
   AddAttendeesToEventParams
 } from "./types.js";
 import { graphClient } from "./graphClient.js";
+import { getCloud } from "./cloudConfig.js";
+
+const cloud = getCloud();
 
 // Create server instance
 const server = new McpServer({
   name: "outlook-mcp",
-  version: "1.0.0"
+  version: "1.1.0"
 });
+
+console.error(`outlook-mcp: Microsoft cloud "${cloud.name}" (login ${cloud.authorityHost}, graph ${cloud.graphBaseUrl})`);
 
 // ============= Calendar Tools =============
 
@@ -666,7 +671,7 @@ server.tool(
 
 server.resource(
   "calendar",
-  "https://graph.microsoft.com/v1.0/me/calendar/events",
+  `${cloud.graphBaseUrl}/v1.0/me/calendar/events`,
   async (uri, extra) => {
     // Just call the graph client with empty parameters
     const events = await graphClient.listEvents({});
@@ -690,7 +695,7 @@ server.resource(
 
 server.resource(
   "inbox",
-  "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages",
+  `${cloud.graphBaseUrl}/v1.0/me/mailFolders/inbox/messages`,
   async (uri, extra) => {
     // Call the graph client with inbox folder as parameter
     const emails = await graphClient.listEmails({ folder: "inbox" });
